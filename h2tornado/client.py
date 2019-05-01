@@ -44,7 +44,7 @@ class AsyncHTTP2Client(object):
             attempting to gracefully close this connection pool when there
             are still inflight requests
         """
-        key = (host, port,)
+        key = (host, port, ssl_options.get('client_cert'))
         if key in self.pools:
             pool = self.pools[key]
             self.io_loop.add_callback(partial(pool.close, force=False))
@@ -112,8 +112,8 @@ class AsyncHTTP2Client(object):
         return future
 
     def fetch_impl(self, request, handle_response):
-        key = self._parse_host_port(request.url)
-        host, port = key
+        (host, port) = self._parse_host_port(request.url)
+        key = (host, port, request.client_cert)
         if key not in self.pools:
             if request.ssl_options:
                 ssl_options = request.ssl_options

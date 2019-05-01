@@ -44,6 +44,7 @@ class AsyncHTTP2Client(object):
             attempting to gracefully close this connection pool when there
             are still inflight requests
         """
+
         key = (host, port, ssl_options.get('client_cert'))
         if key in self.pools:
             pool = self.pools[key]
@@ -115,15 +116,6 @@ class AsyncHTTP2Client(object):
         (host, port) = self._parse_host_port(request.url)
         key = (host, port, request.client_cert)
         if key not in self.pools:
-            if request.ssl_options:
-                ssl_options = request.ssl_options
-            else:
-                ssl_options = {
-                    'validate_cert': request.validate_cert,
-                    'ca_certs': request.ca_certs,
-                    'client_key': request.client_key,
-                    'client_cert': request.client_cert,
-                }
             self.pools[key] = H2ConnectionPool(
                 host, port, self.io_loop, ssl_options,
                 max_connections=self.default_max_connections)
